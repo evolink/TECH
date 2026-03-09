@@ -1340,38 +1340,97 @@ tr:hover td { background: var(--surface2); }
         </button>
       </div>
       <div id="lt-register" style="display:none">
-        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
-          <label class="photo-upload-zone" id="register-photo-zone" title="Ajouter votre photo">
-            <span class="upload-hint">📷<br>Photo</span>
-            <input type="file" accept="image/*" capture="user" onchange="handleRegisterPhoto(this)" style="display:none">
-          </label>
-          <div style="flex:1">
-            <div style="font-size:0.82rem;color:var(--text2);margin-bottom:0.5rem">Ajoutez votre photo de profil (optionnel)</div>
-            <div style="font-size:0.75rem;color:var(--muted)">📷 Peut prendre une photo directement</div>
+        <!-- STEP 1: Info -->
+        <div id="reg-step-1">
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+            <label class="photo-upload-zone" id="register-photo-zone" title="Ajouter votre photo">
+              <span class="upload-hint">📷<br>Photo</span>
+              <input type="file" accept="image/*" capture="user" onchange="handleRegisterPhoto(this)" style="display:none">
+            </label>
+            <div style="flex:1">
+              <div style="font-size:0.82rem;color:var(--text2);margin-bottom:0.5rem">Photo de profil (optionnel)</div>
+            </div>
           </div>
+          <div class="form-group">
+            <label>Prénom & Nom *</label>
+            <input class="form-control" id="r-name" placeholder="Jean Dupont">
+          </div>
+          <div class="form-group">
+            <label>Numéro technicien *</label>
+            <input class="form-control" id="r-num" placeholder="TECH-001">
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input class="form-control" id="r-email" type="email" placeholder="votre@email.com">
+          </div>
+          <div class="form-group">
+            <label>📱 Téléphone / WhatsApp *</label>
+            <input class="form-control" id="r-phone" type="tel" placeholder="06 XX XX XX XX">
+          </div>
+          <div class="form-group">
+            <label>📍 Adresse complète *</label>
+            <input class="form-control" id="r-address" placeholder="Numéro, Rue">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+            <div class="form-group">
+              <label>Code postal</label>
+              <input class="form-control" id="r-zip" placeholder="75000">
+            </div>
+            <div class="form-group">
+              <label>Ville</label>
+              <input class="form-control" id="r-city" placeholder="Paris">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Mot de passe *</label>
+            <input class="form-control" id="r-pass" type="password" placeholder="Min. 6 caractères" oninput="checkTechPassStrength()">
+          </div>
+          <div class="form-group">
+            <label>🔑 Code d'invitation admin *</label>
+            <input class="form-control" id="r-code" placeholder="Demandez le code à votre admin">
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:0.25rem">Fourni par l'administrateur EVOLINK</div>
+          </div>
+          <div class="form-group">
+            <label>Vérification par</label>
+            <div style="display:flex;gap:0.5rem;margin-top:0.25rem">
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:0.5rem 0.75rem">
+                <input type="radio" name="verif-method" value="email" checked style="accent-color:var(--accent)"> 📧 Email
+              </label>
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:0.5rem 0.75rem">
+                <input type="radio" name="verif-method" value="sms" style="accent-color:var(--accent)"> 📱 SMS
+              </label>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="techRegisterStep1()" style="margin-top:0.5rem">Continuer — Vérifier mon identité →</button>
         </div>
-        <div class="form-group">
-          <label>Prénom & Nom</label>
-          <input class="form-control" id="r-name" placeholder="Jean Dupont">
+
+        <!-- STEP 2: Vérification code -->
+        <div id="reg-step-2" style="display:none">
+          <div style="text-align:center;padding:1rem 0 1.5rem">
+            <div style="font-size:2rem;margin-bottom:0.5rem" id="reg-verif-icon">📧</div>
+            <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--text1);margin-bottom:0.3rem">Vérification</div>
+            <div style="font-size:0.8rem;color:var(--muted)" id="reg-verif-desc">Un code a été envoyé à votre adresse email.</div>
+          </div>
+          <div class="form-group">
+            <label>Code de vérification (6 chiffres)</label>
+            <input class="form-control" id="r-verif-code" type="number" placeholder="000000" maxlength="6" style="text-align:center;font-size:1.4rem;letter-spacing:0.3em;font-weight:700">
+          </div>
+          <button class="btn btn-primary btn-full" onclick="techRegisterStep2()">Valider mon code →</button>
+          <button class="btn btn-full" onclick="techRegisterResend()" style="background:var(--surface);margin-top:0.5rem;font-size:0.8rem">🔄 Renvoyer le code</button>
+          <button class="btn btn-full" onclick="regGoBack()" style="background:none;color:var(--muted);margin-top:0.25rem;font-size:0.78rem">← Retour</button>
         </div>
-        <div class="form-group">
-          <label>Numéro technicien</label>
-          <input class="form-control" id="r-num" placeholder="TECH-001">
+
+        <!-- STEP 3: Upload documents -->
+        <div id="reg-step-3" style="display:none">
+          <div style="background:rgba(99,209,150,0.1);border:1px solid rgba(99,209,150,0.3);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1.2rem">
+            <div style="font-size:0.82rem;color:#63d196;font-weight:600">✅ Identité vérifiée avec succès !</div>
+          </div>
+          <div style="font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;color:var(--text1);margin-bottom:0.25rem">📄 Documents professionnels</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:1rem">Uploadez vos documents (PDF ou photo). L'admin validera chaque document.</div>
+          <div id="reg-docs-upload-list"></div>
+          <button class="btn btn-primary btn-full" onclick="techRegisterFinish()" style="margin-top:1rem">Créer mon compte →</button>
+          <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-top:0.5rem">Vous pourrez ajouter des documents plus tard depuis votre profil</div>
         </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input class="form-control" id="r-email" type="email" placeholder="votre@email.com">
-        </div>
-        <div class="form-group">
-          <label>Mot de passe</label>
-          <input class="form-control" id="r-pass" type="password" placeholder="Min. 6 caractères" oninput="checkTechPassStrength()">
-        </div>
-        <div class="form-group">
-          <label>🔑 Code d'invitation admin</label>
-          <input class="form-control" id="r-code" placeholder="Demandez le code à votre admin">
-          <div style="font-size:0.72rem;color:var(--muted);margin-top:0.25rem">Ce code est fourni par l&#39;administrateur EVOLINK</div>
-        </div>
-        <button class="btn btn-primary btn-full" onclick="techRegister()" style="margin-top:0.5rem">Créer mon compte →</button>
       </div>
     </div>
 
@@ -2271,6 +2330,7 @@ tr:hover td { background: var(--surface2); }
 
 <script>
 
+
 // ================================================================
 // ⚙️ CONFIGURATION SUPABASE
 // ================================================================
@@ -2475,7 +2535,7 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-function showToast(msg, type='success') {
+function showToast(msg, type='success', duration=3200) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = `toast ${type} show`;
   setTimeout(() => t.classList.remove('show'), 3200);
@@ -2509,26 +2569,113 @@ function switchLoginTab(tab) {
   document.getElementById('lt-login').style.display = tab==='login'?'block':'none';
   document.getElementById('lt-register').style.display = tab==='register'?'block':'none';
 }
-async function techRegister() {
-  const name=v('r-name'), num=v('r-num').toUpperCase(), email=v('r-email').toLowerCase(), pass=v('r-pass'), code=(v('r-code')||'').toUpperCase();
-  if(!name||!num||!email||!pass||!code) return showToast('Tous les champs sont requis','error');
-  // Vérification du code d'invitation
+// ===== REGISTRATION STEPS =====
+let _regPendingTech = null;
+let _regVerifCode = null;
+let _regPendingDocs = {};
+
+const DOC_TYPES_REG = [
+  {key:'kbis', label:'KBIS', required:true},
+  {key:'carte_pro', label:'Carte professionnelle', required:true},
+  {key:'autocert', label:'Auto-certification technicien', required:false},
+  {key:'aipr', label:'AIPR', required:false},
+  {key:'hab_elec', label:'Habilitation électrique H0-B0', required:false},
+  {key:'photo_id', label:"Photo d'identité", required:true},
+  {key:'permis', label:'Permis de conduire', required:false},
+  {key:'nacelle', label:'Autorisation de conduite nacelle', required:false},
+  {key:'ips', label:'IPS', required:false},
+  {key:'carte_btp', label:'Carte BTP', required:false}
+];
+
+function techRegisterStep1() {
+  const name=v('r-name'), num=(v('r-num')||'').toUpperCase(), email=v('r-email').toLowerCase(),
+        phone=v('r-phone'), address=v('r-address'), zip=v('r-zip'), city=v('r-city'),
+        pass=v('r-pass'), code=(v('r-code')||'').toUpperCase();
+  if(!name||!num||!email||!phone||!address||!pass||!code) return showToast('Tous les champs obligatoires (*) sont requis','error');
   const validCode = (localStorage.getItem('evolink_invite_code') || 'EVOLINK2024').toUpperCase();
-  if(code !== validCode) return showToast('❌ Code d\'invitation incorrect — contactez l\'administrateur','error');
-  if(pass.length<6) return showToast('Mot de passe trop court','error');
+  if(code !== validCode) return showToast('❌ Code incorrect — contactez admin','error');
+  if(pass.length<6) return showToast('Mot de passe trop court (min. 6 caractères)','error');
   if(DB.techs.find(t=>t.email===email)) return showToast('Email déjà utilisé','error');
   if(DB.techs.find(t=>t.num===num)) return showToast('Numéro déjà utilisé','error');
-  const tech = { id: 't'+Date.now(), name, num, email, passHash: btoa(pass), createdAt: new Date().toISOString() };
-  const ok = await saveTech(tech);
-  if(ok) { showToast('✅ Compte créé !'); setTimeout(()=>{ currentUser=tech; enterTech(); }, 800); }
+  const method = document.querySelector('input[name="verif-method"]:checked')?.value || 'email';
+  _regPendingTech = { id:'t'+Date.now(), name, num, email, phone, address, zip, city, passHash:btoa(pass), createdAt:new Date().toISOString(), docsStatus:{} };
+  _regVerifCode = String(Math.floor(100000 + Math.random() * 900000));
+  // Simulate sending (in real app, call email/SMS API)
+  console.log('VERIF CODE:', _regVerifCode);
+  showToast('📧 Code envoyé : ' + _regVerifCode + ' (simulation)', 'info', 6000);
+  document.getElementById('reg-verif-icon').textContent = method === 'sms' ? '📱' : '📧';
+  const dest = method === 'sms' ? 'votre numéro ' + phone : 'votre email ' + email;
+  document.getElementById('reg-verif-desc').textContent = 'Un code a été envoyé à ' + dest + '.';
+  document.getElementById('reg-step-1').style.display = 'none';
+  document.getElementById('reg-step-2').style.display = 'block';
 }
-async function techLogin() {
-  await loadDB();
-  const email=v('l-email').toLowerCase(), pass=v('l-pass');
-  const tech=DB.techs.find(t=>t.email===email && t.passHash===btoa(pass));
-  if(!tech) return showToast('Identifiants incorrects','error');
-  currentUser=tech; enterTech();
+
+function techRegisterStep2() {
+  const entered = v('r-verif-code');
+  if(entered !== _regVerifCode) return showToast('❌ Code incorrect, réessayez','error');
+  document.getElementById('reg-step-2').style.display = 'none';
+  document.getElementById('reg-step-3').style.display = 'block';
+  // Build doc upload list
+  let html = '';
+  DOC_TYPES_REG.forEach(d => {
+    html += '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid var(--border2)">' +
+      '<div style="flex:1"><div style="font-size:0.82rem;font-weight:600;color:var(--text1)">' + d.label + (d.required?' <span style=color:var(--red)>*</span>':'') + '</div>' +
+      '<div style="font-size:0.7rem;color:var(--muted)" id="doc-reg-status-' + d.key + '">Non uploadé</div></div>' +
+      '<label style="cursor:pointer;background:var(--accent);color:white;border-radius:8px;padding:0.35rem 0.7rem;font-size:0.75rem;white-space:nowrap">' +
+      '<input type="file" accept="image/*,.pdf" style="display:none" onchange="handleRegDoc(this,\'' + d.key + '\',\'' + d.label + '\')">📎 Choisir' +
+      '</label></div>';
+  });
+  document.getElementById('reg-docs-upload-list').innerHTML = html;
 }
+
+function handleRegDoc(input, key, label) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    _regPendingDocs[key] = { label, data: e.target.result, name: file.name, type: file.type };
+    const el = document.getElementById('doc-reg-status-' + key);
+    if(el) el.innerHTML = '<span style="color:var(--green)">✅ ' + file.name + '</span>';
+  };
+  reader.readAsDataURL(file);
+}
+
+function techRegisterResend() {
+  _regVerifCode = String(Math.floor(100000 + Math.random() * 900000));
+  console.log('NEW VERIF CODE:', _regVerifCode);
+  showToast('📧 Nouveau code : ' + _regVerifCode + ' (simulation)', 'info', 6000);
+}
+
+function regGoBack() {
+  document.getElementById('reg-step-2').style.display = 'none';
+  document.getElementById('reg-step-1').style.display = 'block';
+}
+
+async function techRegisterFinish() {
+  if(!_regPendingTech) return showToast('Erreur, recommencez','error');
+  const ok = await saveTech(_regPendingTech);
+  if(!ok) return showToast('Erreur lors de la création du compte','error');
+  // Save docs
+  for(const [key, doc] of Object.entries(_regPendingDocs)) {
+    const docObj = {
+      id: 'd'+Date.now()+key,
+      techId: _regPendingTech.id,
+      type: doc.label,
+      key,
+      data: doc.data,
+      filename: doc.name,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+    DB.docs = DB.docs || [];
+    DB.docs.push(docObj);
+  }
+  await saveDB();
+  showToast('✅ Compte créé avec succès !');
+  setTimeout(() => { currentUser = _regPendingTech; _regPendingTech = null; _regPendingDocs = {}; enterTech(); }, 900);
+}
+
+// Keep old name for compatibility
 async function adminLogin() {
   const email=v('a-email').toLowerCase(), pass=v('a-pass');
   if(email==='evolinkpro@gmail.com' && pass==='Admin2024!') {
@@ -2608,30 +2755,6 @@ function handleFile(input) {
 }
 function removeFile() { uploadedFile=null; document.getElementById('f-doc').value=''; document.getElementById('file-preview-area').innerHTML=''; }
 
-async function submitIntervention() {
-  const num=v('f-num'), grille=v('f-grille'), code=v('f-code'), price=parseFloat(v('f-price')), date=v('f-date');
-  if(!num) return showToast("Numéro d'intervention requis",'error');
-  if(!grille) return showToast('Nom de grille requis','error');
-  if(!code) return showToast("Sélectionnez un code",'error');
-  if(!date) return showToast('Date requise','error');
-  if(DB.interventions.find(i=>i.num===num && i.techId===currentUser.id)) return showToast('Ce numéro existe déjà','error');
-  const codeObj = INTERVENTION_CODES.find(c=>c.code===code);
-  const inter = { id:'i'+Date.now(), num, grille, code, cat:codeObj?.cat||code.split('_')[0], desc:codeObj?.desc||'',
-    price:isNaN(price)?0:price, date, time:v('f-time'), comment:v('f-comment'), doc:uploadedFile,
-    techId:currentUser.id, techName:currentUser.name, techNum:currentUser.num, createdAt:new Date().toISOString() };
-  const btn = document.querySelector('#page-new-inter .btn-primary');
-  if(btn) { btn.disabled=true; btn.textContent='⏳ Enregistrement...'; }
-  const ok = await saveIntervention(inter);
-  if(btn) { btn.disabled=false; btn.textContent="✅ Enregistrer l'intervention"; }
-  if(ok) {
-    ['f-num','f-grille','f-code','f-code-search','f-price','f-comment'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-    document.getElementById('selected-code-preview').style.display='none';
-    document.getElementById('f-category').value='';
-    document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
-    document.getElementById('f-time').value=new Date().toTimeString().slice(0,5);
-    showToast('✅ Intervention enregistrée !');
-  }
-}
 function renderMyInters() {
   const list = DB.interventions.filter(i=>i.techId===currentUser.id);
   const el = document.getElementById('my-inters-list');
@@ -2748,38 +2871,6 @@ function renderTechs() {
     </td></tr>`;
   }).join('');
 }
-function openEdit(id) {
-  const i=DB.interventions.find(x=>x.id===id); if(!i) return;
-  editingId=id;
-  ['num','grille','code','price','date','comment'].forEach(f=>{ document.getElementById('edit-'+f).value=i[f]||''; });
-  document.getElementById('edit-modal').classList.add('open');
-}
-async function saveEdit() {
-  const i = DB.interventions.find(x=>x.id===editingId); if(!i) return;
-  const techId = document.getElementById('edit-tech-id')?.value || i.techId;
-  const tech = DB.techs.find(t=>t.id===techId) || {id:i.techId, name:i.techName, num:i.techNum};
-  const code = document.getElementById('edit-code').value || i.code;
-  const price = parseFloat(document.getElementById('edit-price').value);
-  const isEchec = document.getElementById('edit-echec-check')?.checked || false;
-  const echecCode = document.getElementById('edit-echec-code')?.value || '';
-  const echecDesc = document.getElementById('edit-echec-desc')?.value || '';
-  const codeObj = INTERVENTION_CODES.find(x=>x.code===code);
-  const data = {
-    num: document.getElementById('edit-num').value || i.num,
-    grille: document.getElementById('edit-grille').value || i.grille,
-    code: code || (isEchec ? 'ECHEC' : i.code),
-    cat: isEchec ? 'ECHEC' : (codeObj?.cat || i.cat),
-    desc: isEchec ? echecDesc : (codeObj?.desc || i.desc || ''),
-    price: isEchec ? 0 : (isNaN(price) ? i.price : price),
-    date: document.getElementById('edit-date').value || i.date,
-    time: document.getElementById('edit-time')?.value || i.time || '',
-    comment: document.getElementById('edit-comment').value,
-    isEchec, echecCode: isEchec ? echecCode : '', echecDesc: isEchec ? echecDesc : '',
-    techId: tech.id, techName: tech.name, techNum: tech.num,
-  };
-  const ok = await updateIntervention(editingId, data);
-  if(ok) { closeModal('edit-modal'); applyFilters(); renderDashboard(); showToast('✅ Intervention mise à jour'); }
-}
 async function deleteInter(id) {
   if(!confirm('Supprimer cette intervention ?')) return;
   const ok=await deleteIntervention(id);
@@ -2894,51 +2985,6 @@ submitIntervention = async function() {
   // We override below
 };
 
-async function submitIntervention() {
-  const num=v('f-num'), grille=v('f-grille'), code=v('f-code'), price=parseFloat(v('f-price')), date=v('f-date');
-  const isEchec = document.getElementById('f-echec-check')?.checked || false;
-  const echecCode = document.getElementById('f-echec-code')?.value || '';
-  const echecDesc = document.getElementById('f-echec-desc')?.value || '';
-
-  if(!num) return showToast("Numéro d'intervention requis",'error');
-  if(!grille) return showToast('Nom de grille requis','error');
-  if(!code && !isEchec) return showToast("Sélectionnez un code d'intervention",'error');
-  if(!date) return showToast('Date requise','error');
-  if(isEchec && !echecCode) return showToast("Sélectionnez un motif d'échec",'error');
-  if(DB.interventions.find(i=>i.num===num && i.techId===currentUser.id)) return showToast('Ce numéro existe déjà','error');
-
-  const codeObj = INTERVENTION_CODES.find(c=>c.code===code);
-  const inter = {
-    id: 'i'+Date.now(), num, grille,
-    code: code || 'ECHEC',
-    cat: isEchec ? 'ECHEC' : (codeObj?.cat||code.split('_')[0]),
-    desc: isEchec ? echecDesc : (codeObj?.desc||''),
-    price: isEchec ? 0 : (isNaN(price)?0:price),
-    date, time: v('f-time'), comment: v('f-comment'), doc: uploadedFile,
-    techId: currentUser.id, techName: currentUser.name, techNum: currentUser.num,
-    createdAt: new Date().toISOString(),
-    isEchec, echecCode, echecDesc,
-  };
-
-  const btn = document.querySelector('#page-new-inter .btn-primary');
-  if(btn) { btn.disabled=true; btn.textContent='⏳ Enregistrement...'; }
-  const ok = await saveIntervention(inter);
-  if(btn) { btn.disabled=false; btn.textContent="⚡ Enregistrer l'intervention"; }
-
-  if(ok) {
-    ['f-num','f-grille','f-code','f-code-search','f-price','f-comment'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-    document.getElementById('selected-code-preview').style.display='none';
-    document.getElementById('f-category').value='';
-    document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
-    document.getElementById('f-time').value=new Date().toTimeString().slice(0,5);
-    document.getElementById('f-echec-check').checked=false;
-    document.getElementById('echec-fields').classList.remove('open');
-    clearEchec(); removeFile();
-    showToast(isEchec ? '⚠️ Échec enregistré' : '✅ Intervention enregistrée !', isEchec ? 'error' : 'success');
-  }
-}
-
-// ── TECH ECHECS PAGE ──
 function renderMyEchecs() {
   const all = DB.interventions.filter(i=>i.techId===currentUser.id);
   const echecs = all.filter(i=>i.isEchec);
@@ -2988,48 +3034,67 @@ function renderMyEchecs() {
 // ── TECH DOCUMENTS PAGE ──
 function renderMyDocs() {
   const docs = (DB.docs||[]).filter(d=>d.techId===currentUser.id);
-  const DOC_TYPES_LIST = [
-    'Carte professionnelle','Auto-certification technicien','AIPR',
-    'Habilitation électrique H0-B0',"Photo d'identité",
-    'Autorisation de conduite nacelle','CARTE BTP'
-  ];
-
   const alertsEl = document.getElementById('my-docs-alerts');
   const listEl = document.getElementById('my-docs-list');
   if(!listEl) return;
 
-  // Check for alerts
-  const expired = docs.filter(d=>docStatus(d)==='expired');
-  const expiring = docs.filter(d=>docStatus(d)==='expire');
+  const statusLabels = {valid:'✅ Valide', expire:'⚠️ Expire bientôt', expired:'🔴 Expiré', missing:'— Manquant', pending:'🕐 En attente admin', rejected:'❌ Refusé'};
+  const statusColors = {valid:'var(--green)', expire:'var(--orange)', expired:'var(--red)', missing:'var(--muted)', pending:'#f59e0b', rejected:'var(--red)'};
+
+  // Alerts
+  const expired = docs.filter(d=>d.status==='expired');
+  const rejected = docs.filter(d=>d.status==='rejected');
   let alertHtml = '';
-  if(expired.length) alertHtml += `<div class="alert-danger" style="margin-bottom:0.75rem">
-    <div class="alert-header"><div class="alert-icon">🔴</div>
-    <div><div class="alert-title">${expired.length} document(s) expiré(s)</div>
-    <div class="alert-sub">Contactez votre responsable EVOLINK immédiatement</div></div></div>
-    <div class="alert-body">${expired.map(d=>d.type).join(' · ')}</div>
-  </div>`;
-  if(expiring.length) alertHtml += `<div style="background:var(--orange-light);border:2px solid var(--orange);border-radius:var(--radius);padding:1rem;margin-bottom:0.75rem;font-size:0.85rem">
-    <strong style="color:var(--orange)">⚠️ ${expiring.length} document(s) expirent bientôt</strong><br>
-    <span style="color:var(--text2)">${expiring.map(d=>d.type+' ('+fmtDate(d.expiresAt)+')').join(' · ')}</span>
-  </div>`;
+  if(rejected.length) alertHtml += '<div class="alert-danger" style="margin-bottom:0.75rem"><div class="alert-header"><div class="alert-icon">❌</div><div><div class="alert-title">'+rejected.length+' document(s) refusé(s) par admin</div><div class="alert-sub">Veuillez re-uploader un document correct</div></div></div><div class="alert-body">'+rejected.map(d=>d.type).join(' · ')+'</div></div>';
+  if(expired.length) alertHtml += '<div class="alert-danger" style="margin-bottom:0.75rem"><div class="alert-header"><div class="alert-icon">🔴</div><div><div class="alert-title">'+expired.length+' document(s) expiré(s)</div><div class="alert-sub">Contactez votre responsable EVOLINK</div></div></div></div>';
   if(alertsEl) alertsEl.innerHTML = alertHtml;
 
-  // Render each required doc type
+  // Render each doc type
   let html = '';
-  DOC_TYPES_LIST.forEach(dt => {
-    const doc = docs.find(d=>d.type===dt);
-    const st = docStatus(doc);
-    const statusLabels = {valid:'✅ Valide', expire:'⚠️ Expire bientôt', expired:'🔴 Expiré', missing:'— Manquant', pending:'🕐 En attente'};
-    const statusColors = {valid:'var(--green)', expire:'var(--orange)', expired:'var(--red)', missing:'var(--muted)', pending:'var(--yellow)'};
-    html += `<div style="display:grid;grid-template-columns:1fr 110px 110px 100px;gap:0.5rem;align-items:center;padding:0.7rem 0.75rem;border-bottom:1px solid var(--border2);font-size:0.84rem">
-      <span style="font-weight:${doc?'600':'400'};color:${doc?'var(--text)':'var(--muted)'}">${dt}</span>
-      <span style="font-size:0.78rem;color:var(--muted)">${doc?fmtDate(doc.createdAt):'—'}</span>
-      <span style="font-size:0.78rem;color:var(--muted)">${doc&&doc.expiresAt?fmtDate(doc.expiresAt):'—'}</span>
-      <span style="font-size:0.75rem;font-weight:700;color:${statusColors[st]}">${statusLabels[st]}</span>
-    </div>`;
+  DOC_TYPES_REG.forEach(d => {
+    const doc = docs.find(x=>x.key===d.key || x.type===d.label);
+    const st = doc ? (doc.status || 'pending') : 'missing';
+    const label = statusLabels[st] || '— Manquant';
+    const color = statusColors[st] || 'var(--muted)';
+    const adminNote = doc && doc.adminNote ? '<div style="font-size:0.7rem;color:var(--red);margin-top:0.2rem">Note admin : '+doc.adminNote+'</div>' : '';
+    const viewBtn = doc && doc.data ? '<a href="'+doc.data+'" target="_blank" style="font-size:0.7rem;color:var(--accent);text-decoration:none;margin-left:0.5rem">👁 Voir</a>' : '';
+    html += '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border-bottom:1px solid var(--border2)">' +
+      '<div style="flex:1"><div style="font-size:0.83rem;font-weight:600;color:var(--text1)">'+d.label+(d.required?' <span style=color:var(--red)>*</span>':'')+'</div>' +
+      '<div style="font-size:0.75rem;margin-top:0.15rem"><span style="color:'+color+';font-weight:700">'+label+'</span>'+viewBtn+'</div>'+adminNote+'</div>' +
+      '<label style="cursor:pointer;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:0.35rem 0.7rem;font-size:0.72rem;color:var(--text2);white-space:nowrap">' +
+      (doc?'🔄 Remplacer':'📎 Uploader')+
+      '<input type="file" accept="image/*,.pdf" style="display:none" onchange="uploadTechDoc(this,\'' + d.key + '\',\'' + d.label + '\')">' +
+      '</label></div>';
   });
-  if(!html) html = `<div style="text-align:center;padding:3rem;color:var(--muted)">Aucun document enregistré</div>`;
-  listEl.innerHTML = html;
+  if(listEl) listEl.innerHTML = html || '<div style="text-align:center;padding:3rem;color:var(--muted)">Aucun document</div>';
+}
+
+async function uploadTechDoc(input, key, label) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async e => {
+    DB.docs = DB.docs || [];
+    const existing = DB.docs.findIndex(d=>d.techId===currentUser.id && (d.key===key || d.type===label));
+    const docObj = {
+      id: 'd'+Date.now(),
+      techId: currentUser.id,
+      techName: currentUser.name,
+      techNum: currentUser.num,
+      type: label,
+      key,
+      data: e.target.result,
+      filename: file.name,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+    if(existing >= 0) DB.docs[existing] = docObj;
+    else DB.docs.push(docObj);
+    await saveDB();
+    showToast('✅ Document uploadé — en attente de validation');
+    renderMyDocs();
+  };
+  reader.readAsDataURL(file);
 }
 
 // ── ADMIN ECHECS PAGE ──
@@ -4432,7 +4497,7 @@ function renderDocs() {
   if(typeFilter) filtered = filtered.filter(d=>d.type===typeFilter);
   if(currentDocTab==='expire') filtered = filtered.filter(d=>docStatus(d)==='expire');
   else if(currentDocTab==='expired') filtered = filtered.filter(d=>docStatus(d)==='expired');
-  else if(currentDocTab==='pending') filtered = filtered.filter(d=>docStatus(d)==='pending');
+  else if(currentDocTab==='pending') filtered = filtered.filter(d=>(d.status||'pending')==='pending');
 
   // If no filter and showing all, display per-tech with all required doc types
   const listEl = document.getElementById('docs-list-body');
@@ -4454,7 +4519,9 @@ function renderDocs() {
           <span>${docStatusBadge(doc)}</span>
           <span style="display:flex;gap:4px;flex-wrap:wrap">
             ${doc ? `
-              <button class="btn btn-sm btn-ghost" title="Valider" onclick="validateDoc('${doc.id}')">✅</button>
+              ${doc.data ? `<button class="btn btn-sm btn-ghost" title="Voir fichier" onclick="viewDocFile('${doc.id}')">👁</button>` : ''}
+              <button class="btn btn-sm btn-ghost" title="Valider" onclick="validateDoc('${doc.id}')" style="${doc.status==='valid'?'opacity:0.4':''}">✅</button>
+              <button class="btn btn-sm btn-danger" title="Refuser" onclick="rejectDoc('${doc.id}')">❌</button>
               <button class="btn btn-sm btn-ghost" title="Modifier" onclick="openEditDoc('${doc?.id||'X'}','${t.id}','${dt}')">✏️</button>
               <button class="btn btn-sm btn-danger" title="Supprimer" onclick="removeDoc('${doc.id}')">🗑</button>
             ` : `<button class="btn btn-sm btn-primary" onclick="openAddDoc('${t.id}','${dt}')">+ Ajouter</button>`}
@@ -4473,8 +4540,10 @@ function renderDocs() {
         <span style="font-size:0.78rem;color:var(--muted)">${fmtDate(doc.createdAt)}</span>
         <span style="font-size:0.78rem">${doc.expiresAt?fmtDate(doc.expiresAt):'—'}</span>
         <span>${docStatusBadge(doc)}</span>
-        <span style="display:flex;gap:4px">
-          <button class="btn btn-sm btn-ghost" onclick="validateDoc('${doc.id}')">✅</button>
+        <span style="display:flex;gap:4px;flex-wrap:wrap">
+          ${doc.data ? `<button class="btn btn-sm btn-ghost" onclick="viewDocFile('${doc.id}')">👁</button>` : ''}
+          <button class="btn btn-sm btn-ghost" onclick="validateDoc('${doc.id}')" style="${doc.status==='valid'?'opacity:0.4':''}">✅</button>
+          <button class="btn btn-sm btn-danger" onclick="rejectDoc('${doc.id}')">❌</button>
           <button class="btn btn-sm btn-ghost" onclick="openEditDoc('${doc.id}','${doc.techId}','${doc.type}')">✏️</button>
           <button class="btn btn-sm btn-danger" onclick="removeDoc('${doc.id}')">🗑</button>
         </span>
@@ -4489,8 +4558,29 @@ async function validateDoc(docId) {
   const doc = (DB.docs||[]).find(d=>d.id===docId);
   if(!doc) return;
   doc.status='valid'; doc.validatedBy='admin'; doc.validatedAt=new Date().toISOString();
+  delete doc.adminNote;
   await saveDoc(doc);
   showToast('✅ Document validé'); renderDocs();
+}
+
+async function rejectDoc(docId) {
+  const doc = (DB.docs||[]).find(d=>d.id===docId);
+  if(!doc) return;
+  const note = prompt('Raison du refus (optionnel) :') || '';
+  doc.status='rejected'; doc.adminNote=note; doc.rejectedAt=new Date().toISOString();
+  await saveDoc(doc);
+  showToast('❌ Document refusé', 'error'); renderDocs();
+}
+
+function viewDocFile(docId) {
+  const doc = (DB.docs||[]).find(d=>d.id===docId);
+  if(!doc || !doc.data) return showToast('Pas de fichier disponible','error');
+  const w = window.open();
+  if(doc.data.startsWith('data:application/pdf')) {
+    w.document.write('<iframe src="'+doc.data+'" style="width:100%;height:100vh;border:none"></iframe>');
+  } else {
+    w.document.write('<img src="'+doc.data+'" style="max-width:100%;height:auto">');
+  }
 }
 
 async function removeDoc(docId) {
@@ -5122,4 +5212,11 @@ function checkForgotPassStrength() {
 // ✅ SERVICE WORKER — pour PWA / APK
 if('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.
+    navigator.serviceWorker.register('sw.js').then(() => {
+    console.log('SW registered');
+  }).catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
